@@ -26,14 +26,13 @@ class LatteVisitor(ParseTreeVisitor):
             args = self.visit(ctx.arg())
         for i in args:
             print(f"{i.type} {i.name} " );
-        block = "X"
+        block = self.visit(ctx.block())
         return TopdefNode(t, name, args, block)
 
 
     # Visit a parse tree produced by LatteParser#arg.
     def visitArg(self, ctx:LatteParser.ArgContext):
         args = []
-        print(ctx.getChildCount())
         counter = 0
         t = ""
         name = ""
@@ -41,7 +40,6 @@ class LatteVisitor(ParseTreeVisitor):
             return []
         for i in range (ctx.getChildCount()):
             a = ctx.getChild(i)
-            print(a.getText())
             if i % 3 == 0:
                 t = a.getText()
             if i % 3 == 1:
@@ -51,68 +49,101 @@ class LatteVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by LatteParser#block.
     def visitBlock(self, ctx:LatteParser.BlockContext):
-        return self.visitChildren(ctx)
+        stmts = []
+        for i in range (1,ctx.getChildCount()-1):
+            s =  ctx.getChild(i)
+            print(s.getText())
+            stmt = self.visit(s)
+            stmt.text()
+            stmts.append(stmt)
+        return BlockStmtNode("Block",stmts)
+
 
 
     # Visit a parse tree produced by LatteParser#Empty.
     def visitEmpty(self, ctx:LatteParser.EmptyContext):
-        return self.visitChildren(ctx)
+        return EmptyStmtNode("Empty")
 
 
     # Visit a parse tree produced by LatteParser#BlockStmt.
     def visitBlockStmt(self, ctx:LatteParser.BlockStmtContext):
-        return self.visitChildren(ctx)
+        return self.visit(ctx.block())
 
 
     # Visit a parse tree produced by LatteParser#Decl.
     def visitDecl(self, ctx:LatteParser.DeclContext):
-        return self.visitChildren(ctx)
+        t = ctx.type_().getText()
+        items = []
+        for i in range (1,ctx.getChildCount()):
+            it =  ctx.getChild(i)
+            if i % 2 == 1:
+                item = self.visit(it)
+                items.append(item)
+
+        return DeclStmtNode("Decl",t,items)
 
 
     # Visit a parse tree produced by LatteParser#Ass.
     def visitAss(self, ctx:LatteParser.AssContext):
-        return self.visitChildren(ctx)
+        name = ctx.ID().getText()
+        #TODO
+        expr = "EXPR"
+        return AssStmtNode("Ass",name, expr)
 
 
     # Visit a parse tree produced by LatteParser#Incr.
     def visitIncr(self, ctx:LatteParser.IncrContext):
-        return self.visitChildren(ctx)
+        name = ctx.ID().getText()
+        return IncDecStmtNode("Inc", name)
 
 
     # Visit a parse tree produced by LatteParser#Decr.
     def visitDecr(self, ctx:LatteParser.DecrContext):
-        return self.visitChildren(ctx)
+        name = ctx.ID().getText()
+        return IncDecStmtNode("Dec", name)
 
 
     # Visit a parse tree produced by LatteParser#Ret.
     def visitRet(self, ctx:LatteParser.RetContext):
-        return self.visitChildren(ctx)
+        return RetStmtNode("Ret")
 
 
     # Visit a parse tree produced by LatteParser#VRet.
     def visitVRet(self, ctx:LatteParser.VRetContext):
-        return self.visitChildren(ctx)
+        # TODO
+        expr = "EXPR"
+        return RetStmtNode("Ret", expr)
 
 
     # Visit a parse tree produced by LatteParser#Cond.
     def visitCond(self, ctx:LatteParser.CondContext):
-        return self.visitChildren(ctx)
+        #TODO
+        expr = "EXPR"
+        blockTrue = self.visit(ctx.sTrue)
+        return CondStmtNode ("Cond", expr, blockTrue)
 
 
     # Visit a parse tree produced by LatteParser#CondElse.
     def visitCondElse(self, ctx:LatteParser.CondElseContext):
-        return self.visitChildren(ctx)
+        #TODO
+        expr = "EXPR"
+        blockTrue = self.visit(ctx.sTrue)
+        blockFalse = self.visit(ctx.sFlase)
+        return CondStmtNode ("CondElse", expr, blockTrue, blockFalse)
 
 
     # Visit a parse tree produced by LatteParser#While.
     def visitWhile(self, ctx:LatteParser.WhileContext):
-        return self.visitChildren(ctx)
-
+        #TODO
+        expr = "EXPR"
+        stmt = self.visit(ctx.stmt())
+        return WhileStmtNode("While", expr, stmt)
 
     # Visit a parse tree produced by LatteParser#SExp.
     def visitSExp(self, ctx:LatteParser.SExpContext):
-        return self.visitChildren(ctx)
-
+        # TODO
+        expr = "EXPR"
+        return ExpStmtNode("Exp", expr)
 
     # Visit a parse tree produced by LatteParser#Int.
     def visitInt(self, ctx:LatteParser.IntContext):
@@ -136,7 +167,13 @@ class LatteVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by LatteParser#item.
     def visitItem(self, ctx:LatteParser.ItemContext):
-        return self.visitChildren(ctx)
+        name = ctx.ID().getText()
+        # TODO
+        expr = None
+        if ctx.expr() is not None:
+            expr = "EXPR"
+        i = ItemNodeMy(name, expr)
+        return i
 
 
     # Visit a parse tree produced by LatteParser#EId.
