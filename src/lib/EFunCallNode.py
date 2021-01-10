@@ -13,9 +13,10 @@ class EFunCallNode():
         for expr in self.exprs:
             expr_type = expr.checkType(s)
             args_type.append(expr_type)
-        self.type = s.find_fun(self.name,args_type).type
-        if self.type is None:
+        fun = s.find_fun(self.name,args_type)
+        if fun is None:
             raise compileException(f"function {self.name} with arguments of types: {args_type} wasnt declared :C",self.line)
+        self.type = fun.type
         return self.type
 
     def text(self):

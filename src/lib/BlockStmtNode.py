@@ -4,54 +4,58 @@ class BlockStmtNode():
         self.stmt_type = stmt_type
         self.stmts = stmts
         self.line = line
+        self.return_type = None
         
     def checkType(self, s):
         sCopy = s.dcopy()
+        s.new_block_declarations()
         for stmt in self.stmts:
             stmt.checkType(s)
             # stmt.text()
             # s.text()
         return sCopy
 
-    def checkReturnFun(self, return_t, s, fun, fun_begin):
-        if len(self.stmts) == 0 and return_t != 'void':
-            raise compileException(f" {return_t} {fun} without return :C",fun_begin)
+    def checkReturnMainFunctionBlock(self,s, fun):
+        if len(self.stmts) == 0 and fun.return_type != 'void':
+            raise compileException(f" {fun.return_type} {fun.name} without return :C",fun.line)
+        type = self.checkReturn(s,fun)
+        if type == 'inf':
+            self.return_type = 'inf'
+            return 'inf'
+        if type is None and fun.return_type == 'void':
+            self.return_type = 'void'
+            return 'void'
+
+        if type != fun.return_type:
+            raise compileException(f" {fun.return_type} {fun.name} with return type of type {type} :C",fun.line)
+
+
+
         
-        for i in  range(len(self.stmts)):
-            stmt = self.stmts[i]
-            t = stmt.stmt_type
-            if t == "Ret" or t == "VRet":
-                if return_t != stmt.expr_type:
-                    raise compileException(f" {return_t} {fun} with return statment of type: {stmt.expr_type} :C",fun_begin)
-                else:
-                    if i != len(self.stmts)-1:
-                        raise compileException(f" {return_t} {fun} with unrechable code :C",fun_begin)
-                    else:
-                        return
 
-            if t == "CondElse" or t == "Cond":
-                returned = stmt.tryToFindRet(return_t, s, fun, fun_begin)
-                if returned == return_t:
-                    return
-        if return_t != 'void':
-            raise compileException(f" Function [{return_t} {fun}] without return :C",fun_begin)
-    
+    def checkReturn(self,s,fun):
+        ret = []
+        for stmt in self.stmts:
+            stmt.checkReturn(s,fun)
+            ret.append(stmt.return_type)
+        # print(ret)
+        ret = list(filter(lambda r: r is not None, ret))
+        # print(ret)    
+        ret_all = ret
+        ret = list(filter(lambda r: r != 'inf', ret)) 
+        ret = list(dict.fromkeys(ret))
+        if len(ret) > 1:
+            raise compileException(f" Function [{fun.return_type} {fun.name}] without return of 2or more types {ret[0]}{ret[1]}:C",self.line)
+        if len(ret) == 1:
+            if ret[0] != fun.return_type:
+                raise compileException(f" Function [{fun.return_type} {fun.name}] without return type of  {ret[0]}:C",self.line)    
+
+        if len(ret_all) == 0:
+            return None
+        self.return_type = ret_all[0]
+        return self.return_type
 
 
-
-    def tryToFindRet(self, return_t, s, fun, fun_begin):
-        for i in  range(len(self.stmts)):
-            stmt = self.stmts[i]
-            t = stmt.stmt_type
-            
-            if t == "Ret" or t == "VRet":
-                if return_t != stmt.expr_type:
-                    raise compileException(f" {return_t} {fun} with return statment of type: {stmt.expr_type} :C",fun_begin)
-                else:
-                    return return_t
-            if t == "CondElse":
-                return stmt.tryToFindRet(return_t, s, fun, fun_begin)
-        return None
 
     def text(self):
         print(f"BLOK(size:{len(self.stmts)}) ")

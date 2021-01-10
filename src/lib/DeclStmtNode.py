@@ -5,6 +5,7 @@ class DeclStmtNode():
         self.type = t
         self.items = items
         self.line = line
+        self.return_type = None
         for i in self.items:
             i.type = self.type
 
@@ -20,4 +21,7 @@ class DeclStmtNode():
         for i in self.items:
             i.text()
     def tryToFindRet(self, return_t, s, fun, fun_begin):
-        return None
+        self.return_type
+
+    def checkReturn(self,s,fun):
+        return self.return_type

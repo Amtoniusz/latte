@@ -4,11 +4,14 @@ class RetStmtNode():
         self.stmt_type = stmt_type
         self.expr = expr
         self.line = line
+        self.return_type = None
 
     def checkType(self, s):
         self.expr_type = "void"
+        self.return_type ="void"
         if self.stmt_type == "Ret":
             self.expr_type = self.expr.checkType(s)
+            self.return_type =self.expr_type
           
     def text(self):
         if self.stmt_type == "Ret":
@@ -17,8 +20,5 @@ class RetStmtNode():
             print(f"\n")
         else:
             print(f"VRet stmt\n")
-    def tryToFindRet(self, return_t, s, fun, fun_begin):
-        if self.expr_type != return_t:
-            raise compileException(f" {return_t} {fun} with return statment of type: {self.expr_type} :C",fun_begin)
-        else:
-            return return_t
+    def checkReturn(self,s,fun):
+        return self.return_type

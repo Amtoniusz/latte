@@ -1,7 +1,9 @@
 from lib.compileException import compileException
 class EmptyStmtNode():
-    def __init__(self, stmt_type=None ):
+    def __init__(self, stmt_type, line ):
         self.stmt_type = stmt_type
+        self.return_type = None
+        self.line = line
 
     def checkType(self, s):
         pass
@@ -9,5 +11,5 @@ class EmptyStmtNode():
     def text(self):
         print(f"empty stmt")
         
-    def tryToFindRet(self, return_t, s, fun, fun_begin):
-        return None
+    def checkReturn(self,s,fun):
+        return self.return_type

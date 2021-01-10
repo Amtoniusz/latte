@@ -6,6 +6,7 @@ class CondStmtNode():
         self.blockTrue = blockTrue
         self.blockFalse = blockFalse
         self.line = line
+        self.return_type = None
 
     def checkType(self, s):
         expr_type = self.expr.checkType(s)
@@ -27,13 +28,33 @@ class CondStmtNode():
             print(f"]")
 
 
-    def tryToFindRet(self, return_t, s, fun, fun_begin):
-        retT = self.blockTrue.tryToFindRet( return_t, s, fun, fun_begin)
-        if self.stmt_type == "Cond":
+    def checkReturn(self,s,fun):
+        bTret = self.blockTrue.checkReturn(s,fun)
+        bFret = None
+        if self.blockFalse is not None:
+            bFret =self.blockFalse.checkReturn(s,fun)
+        # print(f"True bloak type = {bTret}\n")
+        # print(f"False bloak type = {bFret}\n")
+        if self.expr.const is not None and self.expr.const == True:
+            self.return_type = bTret
+            return bTret
+        if self.expr.const is not None and self.expr.const == False:
+            self.return_type = bFret
+            return bFret
+        if bFret is None or bTret is None:
+            self.return_type = None
             return None
-        retF = self.blockFalse.tryToFindRet( return_t, s, fun, fun_begin)
-        if retT is None:
-            return None
-        if retF is None:
-            return None
-        return retT
+        
+        if bFret  == 'inf' :
+            self.return_type = bTret
+            return self.return_type
+        if bTret  == 'inf' :
+            self.return_type = bFret
+            return self.return_type
+        if bTret != bFret:
+            raise compileException(f"Wrong return type in function {fun.name}: {bFret} or {bTret} :C",self.line)
+            
+        self.return_type = bTret
+        return self.return_type
+
+

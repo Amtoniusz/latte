@@ -4,6 +4,7 @@ class IncDecStmtNode():
         self.stmt_type = stmt_type
         self.name = name
         self.line =line
+        self.return_type = None
 
     def checkType(self, s):
         type = s.find(self.name).type;
@@ -19,5 +20,6 @@ class IncDecStmtNode():
             print(f"IncDec stmt: {self.name}++\n")
         else:
             print(f"IncDec stmt: {self.name}--\n")
-    def tryToFindRet(self, return_t, s, fun, fun_begin):
-        return None
+
+    def checkReturn(self,s,fun):
+        return self.return_type

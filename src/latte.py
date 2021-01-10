@@ -45,6 +45,20 @@ def compile (dir, path_in):
                 addTopdef(topDefs, s)
                 checkType(topDefs, s)
                 checkRet(topDefs, s)
+                # s.text()
+                m = s.find_fun('main',[])
+                # print(m)
+                if m is None:
+                    sys.stderr.write("ERROR\n")
+                    sys.stderr.write( f"exception: no main function\n" )
+                    sys.exit('1')
+                if m.type != 'int':
+                    sys.stderr.write("ERROR\n")
+                    sys.stderr.write( f"exception: main function with return type {m.type}\n" )
+                    sys.exit('1')
+
+
+
             except Exception as e:
                 sys.stderr.write("ERROR\n")
                 sys.stderr.write( f"exception: {e.message}" )

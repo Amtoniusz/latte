@@ -11,6 +11,10 @@ class State():
         self.return_type = None
 
     def add (self, name, var):
+        v = self.f(name)
+        
+        if v is not None and v[0] == True:
+            raise compileException(f"Variable {name} was defined here:  {v[1].line} " ,  var.line)
         self.venv[name]=(True,var)
 
     def add_fun (self, name, ts, fun):

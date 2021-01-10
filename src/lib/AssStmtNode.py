@@ -5,6 +5,7 @@ class AssStmtNode():
         self.expr = expr
         self.name = name
         self.line = line
+        self.return_type = None
 
     #brak skutków ubocznych wywołąnia funkcji
     def checkType(self, s):
@@ -15,7 +16,7 @@ class AssStmtNode():
         if var is None:
             raise compileException(f"Variable {self.name} not defined :C",self.line)  
         if  var.type != expr_type:
-            raise compileException(f"mismach of types in assigment: varible type = {type} expresion = {expr_type} :C",self.line)
+            raise compileException(f"mismach of types in assigment: varible type = {var.type} expresion = {expr_type} :C",self.line)
         
 
     def text(self):
@@ -23,5 +24,5 @@ class AssStmtNode():
         self.expr.text()
         print(f"\n")
 
-    def tryToFindRet(self, return_t, s, fun, fun_begin):
-        return None
+    def checkReturn(self,s,fun):
+        return  self.return_type

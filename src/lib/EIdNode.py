@@ -10,9 +10,10 @@ class EIdNode():
 
     def checkType(self, s):
         # print ( f" {self.name} -> {s.find(self.name)} \n" )
-        self.type = s.find(self.name).type
-        if self.type is None:
+        var = s.find(self.name)
+        if var is None:
             raise compileException(f"Variable {self.name} not defined :C",self.line)
+        self.type = var.type
         return self.type
 
 

@@ -22,7 +22,7 @@ from lib.ArgNode import ArgNode
 from lib.CondStmtNode import CondStmtNode
 from lib.EUnNode import EUnNode
 from lib.EAndOrNode import EOrNode,EAndNode
-from lib.IncDecStmtNode import IncDecStmtNode
+from lib.EmptyStmtNode import EmptyStmtNode
 from lib.IncDecStmtNode import IncDecStmtNode
 
 
@@ -87,7 +87,8 @@ class LatteVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by LatteParser#Empty.
     def visitEmpty(self, ctx:LatteParser.EmptyContext):
-        return EmptyStmtNode("Empty")
+        line = (ctx.start.line,ctx.start.column) 
+        return EmptyStmtNode("Empty", line)
 
 
     # Visit a parse tree produced by LatteParser#BlockStmt.
@@ -146,16 +147,22 @@ class LatteVisitor(ParseTreeVisitor):
     # Visit a parse tree produced by LatteParser#Cond.
     def visitCond(self, ctx:LatteParser.CondContext):
         expr = self.visit(ctx.expr())
-        blockTrue = self.visit(ctx.sTrue)
+        stmt = self.visit(ctx.sTrue)
+        if (stmt.stmt_type != "Block" ):
+            stmt = BlockStmtNode("Block",[stmt], stmt.line)
         line = (ctx.start.line,ctx.start.column)
-        return CondStmtNode ("Cond", expr, blockTrue, None,line)
+        return CondStmtNode ("Cond", expr, stmt, None,line)
 
 
     # Visit a parse tree produced by LatteParser#CondElse.
     def visitCondElse(self, ctx:LatteParser.CondElseContext):
         expr = self.visit(ctx.expr())
         blockTrue = self.visit(ctx.sTrue)
+        if (blockTrue.stmt_type != "Block" ):
+            blockTrue = BlockStmtNode("Block",[blockTrue], blockTrue.line)
         blockFalse = self.visit(ctx.sFlase)
+        if (blockFalse.stmt_type != "Block" ):
+            blockFalse = BlockStmtNode("Block",[blockFalse], blockFalse.line)
         line = (ctx.start.line,ctx.start.column)
         return CondStmtNode ("CondElse", expr, blockTrue, blockFalse, line)
 
@@ -164,13 +171,16 @@ class LatteVisitor(ParseTreeVisitor):
     def visitWhile(self, ctx:LatteParser.WhileContext):
         expr = self.visit(ctx.expr())
         stmt = self.visit(ctx.stmt())
+        if (stmt.stmt_type != "Block" ):
+            stmt = BlockStmtNode("Block",[stmt], stmt.line)
         line = (ctx.start.line,ctx.start.column)
         return WhileStmtNode("While", expr, stmt, line)
 
     # Visit a parse tree produced by LatteParser#SExp.
     def visitSExp(self, ctx:LatteParser.SExpContext):
         expr = self.visit(ctx.expr())
-        return ExpStmtNode("Exp", expr)
+        line = (ctx.start.line,ctx.start.column)
+        return ExpStmtNode("Exp", expr, line)
 
     
     # Visit a parse tree produced by LatteParser#Int.

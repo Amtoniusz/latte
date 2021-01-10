@@ -69,6 +69,9 @@ class EOrNode():
         self.op=op
         self.line =line 
         self.type=None
+        self.const=None
+        self.type = 'boolean'
+        self.get_const()
 
     def checkType(self, s):
         self.typeL = self.exprL.checkType(s)
@@ -91,7 +94,7 @@ class EOrNode():
         self.exprR.text()
         print(f" ")
 
-    def get_const():
+    def get_const(self):
         self.constL = self.exprL.get_const()
         if self.constL is None:
             return None

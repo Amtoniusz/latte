@@ -6,6 +6,7 @@ class TopdefNode():
         self.args = args
         self.block = block
         self.line = line
+        self.return_type = t
 
     def text(self):
         print(f"{self.type} {self.name} ")
@@ -28,7 +29,7 @@ class TopdefNode():
 
 
     def checkReturn(self, s):
-        self.block.checkReturnFun(self.type, s, self.name, self.line)
+        self.block.checkReturnMainFunctionBlock(s, self)
 
     def addYourself(self, s):
         types= []
